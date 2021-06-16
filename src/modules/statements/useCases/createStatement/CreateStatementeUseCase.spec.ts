@@ -14,6 +14,7 @@ describe("Create Statement", () => {
   enum OperationType {
     DEPOSIT = 'deposit',
     WITHDRAW = 'withdraw',
+    TRANSFER = 'transfer'
   }
 
   beforeEach(() =>{

@@ -19,6 +19,7 @@ describe("Get balance", () => {
   enum OperationType {
     DEPOSIT = 'deposit',
     WITHDRAW = 'withdraw',
+    TRANSFER = 'transfer'
   }
 
   beforeEach(() => {

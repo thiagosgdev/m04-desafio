@@ -20,6 +20,7 @@ interface IRequest {
 enum OperationType {
   DEPOSIT = 'deposit',
   WITHDRAW = 'withdraw',
+  TRANSFER = 'transfer'
 }
 
 describe("Get Statement Operation", () => {

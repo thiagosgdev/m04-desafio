@@ -17,13 +17,15 @@ export class StatementsRepository implements IStatementsRepository {
     user_id,
     amount,
     description,
-    type
+    type,
+    sender_id
   }: ICreateStatementDTO): Promise<Statement> {
     const statement = this.repository.create({
       user_id,
       amount,
       description,
-      type
+      type,
+      sender_id
     });
 
     return this.repository.save(statement);
@@ -40,25 +42,50 @@ export class StatementsRepository implements IStatementsRepository {
       { balance: number } | { balance: number, statement: Statement[] }
     >
   {
+    let balance = 0;
     const statement = await this.repository.find({
-      where: { user_id }
+      where: [
+        { user_id},
+        { sender_id: user_id }
+      ]
     });
 
-    const balance = statement.reduce((acc, operation) => {
-      if (operation.type === 'deposit') {
-        return acc + operation.amount;
+    const transfers = statement.filter(({type})=> type === 'transfer').reduce((acc, transfer) => {
+      if(transfer.user_id === user_id){
+        return acc + transfer.amount;
+      }else{
+        return acc - transfer.amount;
+      }
+    }, 0);
+
+    const movement = statement.filter(({type})=> type === 'deposit' || type === 'withdraw').reduce((acc, operation) => {
+      if ((operation.type === 'deposit')) {
+        return Number(operation.amount) + acc;
       } else {
         return acc - operation.amount;
       }
-    }, 0)
+    }, 0);
 
+    console.log(`MOVEMENT ${movement}`)
+    console.log(`TRANSFERS ${transfers}`)
+
+    if(movement > transfers){
+      balance = movement + transfers;
+    }else{
+      balance = transfers + movement;
+    }
+
+    console.log(`BALANCE A ${balance}`)
     if (with_statement) {
+      console.log(`BALANCE B ${balance}`)
       return {
         statement,
         balance
       }
     }
 
-    return { balance }
+
+
+    return {balance};
   }
 }
